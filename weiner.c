@@ -47,6 +47,12 @@ typedef struct Suf_tree{
     char* text;
 } Suf_tree;
 
+Suf_tree* new_suf_tree(char* text){
+    Suf_tree* st = (Suf_tree*) calloc(1, sizeof(Suf_tree));
+    st->text = text;
+    return st;
+}
+
 Node* breaknode(Node* w1, Node* w2, Node* v1, Node* v2, char* text){
     if (!w1 || !w2 || !v1 || !v2) return NULL;
 
@@ -86,10 +92,10 @@ Node* breaknode(Node* w1, Node* w2, Node* v1, Node* v2, char* text){
 }
 
 //newSymbol(a): called when symbol 'a' does not occur in p_{i+1} the new suffix is attached directly to the root
-void newSymbol(Suf_tree* st, int i){
+void new_symbol(Suf_tree* st, int i){
     unsigned char a = st->text[i];
     Node* root = st->root;
-    // safety check (should not happen in newSymbol case)
+    // safety check (should not happen in new_symbol case)
     if (root->child[a] != NULL){
         st->cur_leaf = root->child[a];
         return;
@@ -109,5 +115,61 @@ void newSymbol(Suf_tree* st, int i){
     st->cur_leaf = leaf;
 }
 
+boolean occurs(char c, const char* text){
+    int len = strlen(text);
+    if(text != NULL && len > 0){
+        for(int i=0; i<len; i++){
+            if(text[i] == c) return TRUE;
+        }
+    }
+    return FALSE;
+}
 
+Node* firsttest(Suf_tree* st, char a){
+    if(st != NULL){
+        Node* i;
+        for(i = st->cur_leaf; i != NULL && i->father->a_test[a] != NULL; i = i->father);
+        return i;
+    } 
+    return NULL;
+}
 
+Node* firstlink(Suf_tree* st, char a){
+    if(st != NULL){
+        Node* i;
+        for(i = st->cur_leaf; i != NULL && i->father->a_link[a] != NULL; i = i->father);
+        return i;
+    } 
+    return NULL;
+}
+
+// right-to-left suffix construction
+void weiner_construction(Suf_tree* st){
+    // compute the tree for the last letter i
+    st->root = new_node();
+    st->cur_leaf = new_node();
+    int i, len;
+    int i = len = strlen(st->text) - 1;
+    st->cur_leaf->limits[0] = i;
+    st->cur_leaf->limits[1] = i + 1;
+    st->cur_leaf->father = st->root;
+    st->root->child[st->text[i]] = st->cur_leaf;
+
+    for(i--; i>=0; i--){
+        char a = st->text[i];
+        boolean occurs = FALSE;
+        for(int j=0;j<len; j++){
+            if(st->text[a] == a){
+                occurs = TRUE;
+                break;
+            }
+        }
+        if(occurs){
+            Node* ft = firsttest(st, a);
+            Node* fl = firstlink(st, a);
+            Node *w1 = fl->a_link[a];
+        } else{
+            new_symbol(st, i);
+        }
+    }
+}
