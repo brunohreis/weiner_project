@@ -10,17 +10,22 @@ typedef char boolean;
 typedef struct Node;
 
 typedef struct Node{
-    int i, j;
-    Node* left;
-    Node* right;
-    boolean a_test[256];
-    Node* a_link[256];    
+    int limits[256][2];
+    Node** child[256];
+    Node** a_link[256];  
+    boolean a_test[256];  
 } Node;
 
 typedef struct Suf_tree{
     Node* root;
     Node* cur_leaf;
 } Suf_tree;
+
+Node* breaknode(Node* w1, Node* w2, Node* v1, Node* v2){
+    if(w1 != w2){
+        
+    }
+}
 
 typedef struct Stack{
     Node** el;
@@ -45,5 +50,7 @@ void insert(Stack* s, Node* new_ele){
 Node* remove(Stack* s){
     return s->el[s->size--];
 }
+
+
 
 
