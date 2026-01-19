@@ -36,14 +36,15 @@ typedef struct Node{
 } Node;
 
 Node* new_node(){
-    Node* n = (Node*) malloc(sizeof(Node));
-
+    Node* n = (Node*) calloc(1, sizeof(Node));
+    return n;
 }
 
 // Suffix-tree struct
 typedef struct Suf_tree{
     Node* root;
     Node* cur_leaf;
+    char* text;
 } Suf_tree;
 
 Node* breaknode(Node* w1, Node* w2, Node* v1, Node* v2, char* text){
@@ -84,31 +85,29 @@ Node* breaknode(Node* w1, Node* w2, Node* v1, Node* v2, char* text){
     }
 }
 
-// stack struct for storing the last path traversed, for the step 'Up' from 'Up-Link-Down'
-// typedef struct Stack{
-//     Node** el;
-//     int capacity, size;
-// } Stack;
+//newSymbol(a): called when symbol 'a' does not occur in p_{i+1} the new suffix is attached directly to the root
+void newSymbol(Suf_tree* st, int i){
+    unsigned char a = st->text[i];
+    Node* root = st->root;
+    // safety check (should not happen in newSymbol case)
+    if (root->child[a] != NULL){
+        st->cur_leaf = root->child[a];
+        return;
+    }
 
-// Stack* create_stack(int capacity){
-//     Stack* s;
-//     s->el = (Node**) malloc(capacity*sizeof(Stack));
-//     s->size = 0;
-//     return s;
-// }
+    // create new leaf and connect it to root
+    Node* leaf = create_node();
+    root->child[a] = leaf;
+    leaf->father = root;
+    leaf->limits[0] = i;
+    leaf->limits[1] = i+1;
 
-// void insert(Stack* s, Node* new_ele){
-//     if(s->size < s->capacity){
-//         s->el[s->size++] = new_ele;
-//     } else{
-//         prinft("Insert error: stack is full!");
-//     }
-// }
-
-// Node* remove(Stack* s){
-//     return s->el[s->size--];
-// }
-
+    for(Node* n = st->cur_leaf; i != NULL; n = n->father)
+        n->a_test[a] = TRUE;
+        
+    st->cur_leaf->a_link[a] = leaf;
+    st->cur_leaf = leaf;
+}
 
 
 
